@@ -1,0 +1,202 @@
+openapi: 3.0.3
+info:
+  title: IndicSubtitleNet Client API (v1)
+  version: "1.0.0"
+  description: Client-facing subset of ISN APIs (models.run, jobs.status, auth, feedback, billing)
+servers:
+  - url: https://client.indicsubtitlenet.com/api
+security:
+  - clientAuth: []
+components:
+  securitySchemes:
+    clientAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        trace_id:
+          type: string
+        details:
+          type: object
+      required: [code,message,trace_id]
+    AuthTokenRequest:
+      type: object
+      properties:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+      required: [client_id, client_secret]
+    AuthTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+    ModelsRunRequest:
+      type: object
+      properties:
+        workflow:
+          type: array
+          items:
+            type: string
+          example: ["asr","mt","context","align","qa"]
+        input:
+          type: object
+          properties:
+            url:
+              type: string
+            drive_file_id:
+              type: string
+            presigned_upload:
+              type: boolean
+        source_lang: {"type":"string"}
+        target_lang: {"type":"string"}
+        media_duration_s: {"type":"integer"}
+        latency_class: {"type":"string","enum":["auto","realtime","standard","bulk"]}
+        idempotency_key: {"type":"string"}
+      required: [workflow,input,source_lang,media_duration_s]
+    ModelsRunResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+        enqueue_time:
+          type: string
+    JobStatusResponse:
+      type: object
+      properties:
+        job_id: {type: string}
+        status: {type: string, example: "queued|running|completed|failed"}
+        percent_complete: {type: number, format: float, example: 0.42}
+        manifest_url: {type: string}
+paths:
+  /auth/token:
+    post:
+      summary: Obtain client token (client credentials)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthTokenRequest'
+      responses:
+        '200':
+          description: Access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /models/run:
+    post:
+      summary: Submit a job for processing (ASR → MT → Context → Align → QA)
+      security:
+        - clientAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelsRunRequest'
+      responses:
+        '202':
+          description: Job accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelsRunResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /jobs/status:
+    get:
+      summary: Get job status and progress
+      security:
+        - clientAuth: []
+      parameters:
+        - in: query
+          name: job_id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatusResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /feedback/submit:
+    post:
+      summary: Submit human feedback for a job
+      security:
+        - clientAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id: {type: string}
+                rating: {type: number, format: float}
+                comment: {type: string}
+                emotion_match: {type: number, format: float}
+      responses:
+        '200':
+          description: Feedback accepted
+        '400':
+          description: Validation error
+  /billing/usage:
+    get:
+      summary: Get tenant usage and cost split
+      security:
+        - clientAuth: []
+      parameters:
+        - in: query
+          name: tenant_id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Usage summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant_id: {type: string}
+                  period: {type: string}
+                  minutes_isn: {type: number}
+                  minutes_google: {type: number}
+                  minutes_whisper: {type: number}
+        '400':
+          description: Bad request

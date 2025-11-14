@@ -1,0 +1,2558 @@
+{
+  "info": {
+    "name": "ISN_Universal_API_Collection_v8.5-Hybrid-Final.postman_collection.json",
+    "_postman_id": "ISN-Universal-v8.4-FR-Master",
+    "description": "Merged & reorganized master collection for IndicSubtitleNet v8.4-FR. Includes Adaptive Worker Routing, SQI, QA AutoRemediate, Prosody Alignment, full Providers (Google Vertex/Gemini/OpenAI), complete MDMS, Compliance v2, Observability+ and more.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.indicsubtitlenet.com/v1"
+    },
+    {
+      "key": "token",
+      "value": "YOUR_ACCESS_TOKEN"
+    },
+    {
+      "key": "tenant_id",
+      "value": "TENANT-001"
+    },
+    {
+      "key": "project_id",
+      "value": "PROJECT-001"
+    },
+    {
+      "key": "job_id",
+      "value": "JOB-EXAMPLE"
+    },
+    {
+      "key": "sqi_threshold",
+      "value": "85"
+    },
+    {
+      "key": "provider_openai_key",
+      "value": "sk-REDACTED"
+    },
+    {
+      "key": "provider_gemini_key",
+      "value": "gai-REDACTED"
+    },
+    {
+      "key": "google_sa_key_path",
+      "value": "/secrets/google-sa.json"
+    },
+    {
+      "key": "region",
+      "value": "asia-south1"
+    },
+    {
+      "key": "routing_policy_id",
+      "value": "asr-adaptive-v1"
+    }
+  ],
+  "_isn_metadata": {
+    "collection_version": "8.5-Hybrid-Full",
+    "based_on": "8.4-FR",
+    "generated_at": "2025-10-29T12:00:00Z",
+    "notes": "Merged Gemini + STT Hybrid extensions into base Universal Collection; adds Vertex AI training and real-time SQI features."
+  },
+  "item": [
+    {
+      "name": "A. Access & Identity",
+      "item": [
+        {
+          "name": "Get Access Token (Client Credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/auth/token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"MYSUBTITLE_ENTERPRISE\",\n  \"client_secret\": \"REDACTED\"\n}"
+            }
+          }
+        },
+        {
+          "name": "WhoAmI",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/auth/whoami"
+          }
+        },
+        {
+          "name": "Create API Key (scoped)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/security/api-keys",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"PartnerKey\",\n  \"scopes\": [\n    \"asr:read\",\n    \"asr:write\",\n    \"qa:read\"\n  ],\n  \"rate_limit\": {\n    \"rpm\": 600,\n    \"burst\": 200\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Rotate API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/security/api-keys/rotate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key_id\": \"KEY-123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List OAuth2 Scopes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/security/scopes"
+          }
+        },
+        {
+          "name": "Verify Signature (manifest)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/security/signature/verify",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"manifest_url\": \"https://cdn.isn/prod/output/{{job_id}}/manifest.json\",\n  \"signature\": \"BASE64_SIG\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Users (list)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/identity/users"
+          }
+        },
+        {
+          "name": "Roles (list)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/identity/roles"
+          }
+        },
+        {
+          "name": "QoS Rate (set)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/qos/rate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rpm\": 600,\n  \"burst\": 200\n}"
+            }
+          }
+        },
+        {
+          "name": "QoS Rate (current)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/qos/rate/current"
+          }
+        },
+        {
+          "name": "QoS Limits (get)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/qos/limits"
+          }
+        }
+      ]
+    },
+    {
+      "name": "B. System & Overview",
+      "item": [
+        {
+          "name": "System Map",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/system/map"
+          }
+        },
+        {
+          "name": "System Time",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/system/time"
+          }
+        },
+        {
+          "name": "System Health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/health"
+          }
+        },
+        {
+          "name": "Components Health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/system/components"
+          }
+        },
+        {
+          "name": "API Version",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/version"
+          }
+        },
+        {
+          "name": "Docs: Models",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/docs/models"
+          }
+        },
+        {
+          "name": "Docs: Architecture",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/docs/architecture"
+          }
+        },
+        {
+          "name": "Docs: Providers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/docs/providers"
+          }
+        },
+        {
+          "name": "Docs: Changelog (v8.4)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/docs/changelog/v8.4"
+          }
+        },
+        {
+          "name": "Legal: Licenses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/legal/licenses"
+          }
+        },
+        {
+          "name": "Legal: ToS",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/legal/tos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "C. Universal Workflow & Realtime",
+      "item": [
+        {
+          "name": "Run Workflow (ASR\u2192MT\u2192Context\u2192Align\u2192QA)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/models/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"ISN-ASR\",\n  \"version\": \"v1.2\",\n  \"workflow\": [\n    \"asr\",\n    \"mt\",\n    \"context\",\n    \"align\",\n    \"qa\"\n  ],\n  \"input_type\": \"audio\",\n  \"input\": {\n    \"url\": \"https://storage.googleapis.com/isn/prod/jobs/{{job_id}}/input.mp4\"\n  },\n  \"source_lang\": \"hi\",\n  \"target_lang\": \"en\",\n  \"options\": {\n    \"timestamps\": true,\n    \"output_format\": \"srt\",\n    \"contextual_mode\": \"film\",\n    \"diarization\": false\n  },\n  \"metadata\": {\n    \"job_id\": \"{{job_id}}\",\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"project_id\": \"{{project_id}}\",\n    \"origin\": \"mysubtitle.in\",\n    \"callback_url\": \"https://api.mysubtitle.in/v1/webhooks/isn/job\",\n    \"idempotency_key\": \"DEMO-IDEMPOTENCY\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Workflow Preview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/workflow/preview?job_id={{job_id}}"
+          }
+        },
+        {
+          "name": "Workflow Terminate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/workflow/terminate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Scheduler Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/scheduler/route",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "ASR Stream (start)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/asr/stream/start",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lang\": \"hi\",\n  \"mode\": \"low_latency\"\n}"
+            }
+          }
+        },
+        {
+          "name": "ASR Stream (push)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/asr/stream/chunk",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stream_id\": \"STREAM-1\",\n  \"data\": \"base64_audio\"\n}"
+            }
+          }
+        },
+        {
+          "name": "ASR Stream (stop)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/asr/stream/stop",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stream_id\": \"STREAM-1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "MT Stream (token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mt/stream/token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"\u0928\u092e\u0938\u094d\u0924\u0947\",\n  \"from\": \"hi\",\n  \"to\": \"en\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Align Stream",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/align/stream",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"srt\": \"BASE64_SRT\",\n  \"audio_chunk\": \"BASE64_AUDIO\"\n}"
+            }
+          }
+        },
+        {
+          "name": "QA Live",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/qa/live",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"srt\": \"BASE64_SRT\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "D. Models & Processing",
+      "item": [
+        {
+          "name": "Speech Models",
+          "item": [
+            {
+              "name": "ASR /asr/transcribe",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/asr/transcribe",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"input_type\": \"audio\",\n  \"input\": {\n    \"url\": \"https://storage.googleapis.com/isn/prod/jobs/JOB-ASR/input.mp4\"\n  },\n  \"source_lang\": \"hi\",\n  \"options\": {\n    \"timestamps\": true,\n    \"output_format\": \"json\"\n  },\n  \"metadata\": {\n    \"job_id\": \"JOB-ASR\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Voice Synthesize (VoiceNet)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/voice/synthesize",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"Welcome to IndicSubtitleNet.\",\n  \"voice\": \"hi_male_01\",\n  \"locale\": \"hi-IN\",\n  \"speed\": 1.0,\n  \"metadata\": {\n    \"job_id\": \"JOB-TTS\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Dubbing Align",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/dubbing/align",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"audio_url\": \"https://cdn.isn/jobs/JOB-DUB/dubbed.wav\",\n  \"video_url\": \"https://cdn.isn/jobs/JOB-DUB/input.mp4\",\n  \"lip_sync\": true,\n  \"metadata\": {\n    \"job_id\": \"JOB-DUB\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Emotion Analyze (EmotionNet)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/emotion/analyze",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"audio_url\": \"https://cdn.isn/jobs/JOB-EMO/input.wav\",\n  \"window_ms\": 2000,\n  \"metadata\": {\n    \"job_id\": \"JOB-EMO\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Audio Clean (denoise)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/audio/clean",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"audio_url\": \"https://cdn.isn/jobs/JOB-AUDIO/input.wav\",\n  \"profile\": \"dialogue\",\n  \"enhance\": true\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Text Models",
+          "item": [
+            {
+              "name": "MT /mt/translate",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/mt/translate",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"\u0928\u092e\u0938\u094d\u0924\u0947, \u0939\u092e \u0936\u0941\u0930\u0942 \u0915\u0930 \u0930\u0939\u0947 \u0939\u0948\u0902\u0964\",\n  \"source_lang\": \"hi\",\n  \"target_lang\": \"en\",\n  \"domain\": \"film\",\n  \"metadata\": {\n    \"job_id\": \"JOB-MT\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Summarizer Generate",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/summarizer/generate",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"srt_url\": \"https://cdn.isn/jobs/{{job_id}}/output.srt\",\n  \"length\": \"short\",\n  \"style\": \"neutral\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Lexicon Check",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/lexicon/check",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"\u0915\u0943\u092a\u092f\u093e \u0938\u093f\u0938\u094d\u091f\u092e \u0930\u093f\u092c\u0942\u091f \u0915\u0930\u0947\u0902\u0964\",\n  \"glossary\": [\n    {\n      \"term\": \"reboot\",\n      \"preferred\": \"restart\"\n    }\n  ]\n}"
+                }
+              }
+            },
+            {
+              "name": "SpeechGuard Filter",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/speechguard/filter",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"...\",\n  \"policies\": [\n    \"toxicity\",\n    \"profanity\",\n    \"hate\"\n  ]\n}"
+                }
+              }
+            },
+            {
+              "name": "Context Localize",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/context/localize",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"...\",\n  \"locale\": \"en-IN\",\n  \"domain\": \"film\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Vision & Multimodal",
+          "item": [
+            {
+              "name": "OCR Text",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/ocr/text",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"video_url\": \"https://cdn.isn/jobs/JOB-OCR/input.mp4\",\n  \"fps\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Segmentor Video",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/segmentor/video",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"video_url\": \"https://cdn.isn/jobs/JOB-SEG/input.mp4\",\n  \"detect_scenes\": true\n}"
+                }
+              }
+            },
+            {
+              "name": "Multimodal Fuse",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/multimodal/fuse",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"audio_text\": \"...\",\n  \"ocr_text\": \"...\",\n  \"frames\": [\n    \"https://cdn.isn/frames/f1.png\"\n  ]\n}"
+                }
+              }
+            },
+            {
+              "name": "Align Prosody (new)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/align/prosody",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"srt_url\": \"https://cdn.isn/jobs/{{job_id}}/output.srt\",\n  \"audio_url\": \"https://cdn.isn/jobs/{{job_id}}/input.wav\"\n}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "E. Evaluation & Quality",
+      "item": [
+        {
+          "name": "Evaluate ASR (WER/CER)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/evaluate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task\": \"asr\",\n  \"level\": \"document\",\n  \"metrics\": [\n    \"WER\",\n    \"CER\"\n  ],\n  \"data\": {\n    \"reference\": \"\u0928\u092e\u0938\u094d\u0924\u0947 \u0914\u0930 \u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948\u0964 \u0906\u091c \u0939\u092e \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902\u0917\u0947\u0964\",\n    \"hypothesis\": \"\u0928\u092e\u0938\u094d\u0924\u0947 \u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948\u0964 \u0906\u091c \u0939\u092e \u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902\u0917\u0947\u0964\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Evaluate MT (BLEU/COMET)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/evaluate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task\": \"mt\",\n  \"metrics\": [\n    \"BLEU\",\n    \"COMET\"\n  ],\n  \"data\": {\n    \"reference\": \"Welcome! Today we will begin.\",\n    \"hypothesis\": \"Welcome, today we will start.\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Evaluate Compare (ISN vs Google vs Whisper)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/evaluate/compare",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"task\": \"asr\",\n  \"input\": {\n    \"url\": \"https://storage.googleapis.com/isn/prod/jobs/{{job_id}}/input.mp4\"\n  },\n  \"providers\": [\n    \"isn_asr:v1.2\",\n    \"google_vertex_stt:latest\",\n    \"openai_whisper:large-v3\"\n  ],\n  \"metrics\": [\n    \"WER\",\n    \"Latency\",\n    \"CostPerMin\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Evaluate Subtitles (SQI Full)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/evaluate/subtitles/full",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reference_srt\": \"https://cdn.isn/jobs/{{job_id}}/reference.srt\",\n  \"hypothesis_srt\": \"https://cdn.isn/jobs/{{job_id}}/output.srt\",\n  \"metrics\": [\n    \"WER\",\n    \"CER\",\n    \"BLEU\",\n    \"chrF\",\n    \"COMET\",\n    \"BERTScore\",\n    \"BLEURT\",\n    \"TER\",\n    \"SubER\",\n    \"FER\",\n    \"CPS\",\n    \"CPL\",\n    \"LPB\",\n    \"SyncOffset\",\n    \"SegQuality\",\n    \"Consistency\"\n  ],\n  \"rules\": {\n    \"max_chars_per_line\": 42,\n    \"max_lines\": 2,\n    \"max_cps\": 20,\n    \"offset_tolerance_ms\": 150\n  },\n  \"metadata\": {\n    \"job_id\": \"{{job_id}}\",\n    \"mode\": \"asr_mt\",\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"project_id\": \"{{project_id}}\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "QA Evaluate (readability/speed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/qa/evaluate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"srt\": \"BASE64_OR_URL\",\n  \"rules\": {\n    \"max_chars_per_line\": 42,\n    \"max_lines\": 2,\n    \"max_cps\": 20\n  },\n  \"metadata\": {\n    \"job_id\": \"{{job_id}}\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "QA AutoRemediate (fix & preview)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/qa/remediate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"srt_url\": \"https://cdn.isn/jobs/{{job_id}}/output.srt\",\n  \"fixes\": [\n    \"timing_shift\",\n    \"line_break\",\n    \"fer_punctuation\"\n  ],\n  \"preview_only\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "SQI Report (job)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/qa/sqi-report?job_id={{job_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "F. Adaptive Worker Routing",
+      "item": [
+        {
+          "name": "Register Policy (ASR Adaptive)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/routing/policies/asr",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"asr-adaptive-v1\",\n  \"rules\": [\n    {\n      \"if\": {\n        \"duration_s\": {\n          \"lt\": 1800\n        }\n      },\n      \"then\": {\n        \"provider\": \"openai_whisper\"\n      }\n    },\n    {\n      \"if\": {\n        \"duration_s\": {\n          \"gte\": 1800\n        }\n      },\n      \"then\": {\n        \"provider\": \"google_vertex_stt\"\n      }\n    },\n    {\n      \"if\": {\n        \"file_ext\": [\n          \"mp3\",\n          \"wav\"\n        ]\n      },\n      \"then\": {\n        \"provider\": \"google_vertex_stt\"\n      }\n    },\n    {\n      \"if\": {\n        \"lang\": [\n          \"hi\",\n          \"bn\",\n          \"ta\",\n          \"ur\"\n        ]\n      },\n      \"then\": {\n        \"provider\": \"isn_asr\"\n      }\n    }\n  ],\n  \"failover\": {\n    \"retries\": 2,\n    \"order\": [\n      \"isn_asr\",\n      \"google_vertex_stt\",\n      \"openai_whisper\"\n    ]\n  },\n  \"objective\": \"min_cost_for_accuracy>=0.9\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Routing Recommend",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/routing/recommend?duration_s=3400&lang=en&context=news"
+          }
+        },
+        {
+          "name": "Routing Optimize",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/routing/policies/optimize",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"asr-adaptive-v1\",\n  \"lookback_days\": 30\n}"
+            }
+          }
+        },
+        {
+          "name": "Routing Policies List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/routing/policies/list"
+          }
+        }
+      ]
+    },
+    {
+      "name": "G. Datasets & MDMS",
+      "item": [
+        {
+          "name": "Register Dataset: IndicSpeech",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"IndicSpeech:2025.09\",\n  \"name\": \"IndicSpeech Corpus\",\n  \"type\": \"audio_text\",\n  \"languages\": [\n    \"hi\",\n    \"en\",\n    \"bn\",\n    \"ta\",\n    \"mr\"\n  ],\n  \"license\": {\n    \"type\": \"cc-by\"\n  },\n  \"usage\": {\n    \"allowed\": [\n      \"training\",\n      \"evaluation\"\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Dataset: EduLing-QA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"EduLing-QA:2025.10\",\n  \"name\": \"EduLing QA Corpus\",\n  \"type\": \"qna_pairs\",\n  \"languages\": [\n    \"en\",\n    \"hi\"\n  ],\n  \"license\": {\n    \"type\": \"cc-by\"\n  },\n  \"usage\": {\n    \"allowed\": [\n      \"training\",\n      \"evaluation\"\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Dataset: CineLing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"CineLing:2025.09\",\n  \"name\": \"CineLing AV Corpus\",\n  \"type\": \"audio_video_text\",\n  \"languages\": [\n    \"hi\",\n    \"en\"\n  ],\n  \"license\": {\n    \"type\": \"cc-by\"\n  },\n  \"usage\": {\n    \"allowed\": [\n      \"training\",\n      \"evaluation\"\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Dataset: CivicLing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"CivicLing:2025.09\",\n  \"name\": \"CivicLing Dataset\",\n  \"type\": \"civic_speech\",\n  \"languages\": [\n    \"en\",\n    \"hi\"\n  ],\n  \"license\": {\n    \"type\": \"cc-by\"\n  },\n  \"usage\": {\n    \"allowed\": [\n      \"training\",\n      \"evaluation\"\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Dataset: VoiceLing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"VoiceLing:2025.10\",\n  \"name\": \"VoiceLing TTS+Dubbing\",\n  \"type\": \"audio_text_pairs\",\n  \"languages\": [\n    \"hi\",\n    \"en\",\n    \"ta\",\n    \"bn\",\n    \"mr\"\n  ],\n  \"license\": {\n    \"type\": \"cc-by\"\n  },\n  \"owner\": {\n    \"organization\": \"Top Gun Venture Studios\",\n    \"contact\": \"legal@isn\"\n  },\n  \"usage\": {\n    \"allowed\": [\n      \"training\",\n      \"evaluation\"\n    ],\n    \"redistributable\": true\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Dataset: SceneLing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"SceneLing:2025.10\",\n  \"name\": \"SceneLing Vision Segmentation\",\n  \"type\": \"video_frames\",\n  \"languages\": [\n    \"n/a\"\n  ],\n  \"license\": {\n    \"type\": \"cc-by\"\n  },\n  \"usage\": {\n    \"allowed\": [\n      \"training\",\n      \"evaluation\"\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Dataset: SafeLing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"SafeLing:2025.10\",\n  \"name\": \"SafeLing Toxicity/Bias\",\n  \"type\": \"text_labels\",\n  \"languages\": [\n    \"hi\",\n    \"en\"\n  ],\n  \"license\": {\n    \"type\": \"cc-by\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Datasets List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets"
+          }
+        },
+        {
+          "name": "Dataset Fingerprint",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/fingerprint",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"VoiceLing:2025.10\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Dataset Describe",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/describe?dataset_id=IndicSpeech:2025.09"
+          }
+        },
+        {
+          "name": "Dataset Lineage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/lineage?dataset_id=IndicSpeech:2025.09"
+          }
+        },
+        {
+          "name": "Dataset Compliance Score v2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/datasets/score",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"VoiceLing:2025.10\",\n  \"metrics\": [\n    \"license_validity\",\n    \"consent_evidence\",\n    \"bias_score\",\n    \"quality_level\"\n  ],\n  \"output\": \"compliance_score\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "H. Compliance & Governance",
+      "item": [
+        {
+          "name": "Job Compliance Score (v2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/compliance/score/job",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\",\n  \"checks\": [\n    \"license\",\n    \"consent\",\n    \"pii\",\n    \"sdh_tags\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "License Matrix Sync",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/compliance/license-matrix/sync",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"https://cdn.isn/licenses/matrix.json\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Consent Artifacts Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/compliance/consent-artifacts",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"VoiceLing:2025.10\",\n  \"urls\": [\n    \"https://docs/link1\",\n    \"https://docs/link2\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Compliance Export",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/compliance/export?userId=user123"
+          }
+        },
+        {
+          "name": "Governance Retention",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/governance/retention",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy\": \"retention\",\n  \"duration\": \"90d\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Audit Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/audit/events?limit=100"
+          }
+        },
+        {
+          "name": "Audit Policy Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/audit/policies/test",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policy_id\": \"P-01\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "I. Billing & Cost",
+      "item": [
+        {
+          "name": "Usage (current month)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/billing/usage"
+          }
+        },
+        {
+          "name": "Estimate (what-if)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/billing/estimate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asr_minutes\": 600,\n  \"mt_chars\": 500000,\n  \"storage_gb_month\": 5,\n  \"egress_gb\": 2,\n  \"providers\": [\n    \"isn_asr:v1.2\",\n    \"openai_whisper:large-v3\",\n    \"google_vertex_stt:latest\"\n  ],\n  \"objective\": \"min_cost_for_accuracy>=0.9\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forecast (predict)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/billing/forecast",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"history_days\": 90,\n  \"seasonality\": \"monthly\",\n  \"expected_clients\": 1000\n}"
+            }
+          }
+        },
+        {
+          "name": "Partner Billing (get)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/billing/partner/PARTNER-001"
+          }
+        }
+      ]
+    },
+    {
+      "name": "J. Observability & Analytics",
+      "item": [
+        {
+          "name": "Metrics: SQI Overall p50",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/metrics?metric=sqi_overall_p50&interval=24h"
+          }
+        },
+        {
+          "name": "Metrics: SQI Trend 7d",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/metrics?metric=sqi_trend_7d"
+          }
+        },
+        {
+          "name": "Metrics: FER Rate",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/metrics?metric=fer_rate&interval=24h"
+          }
+        },
+        {
+          "name": "Metrics: SubER Rate",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/metrics?metric=suber_rate&interval=24h"
+          }
+        },
+        {
+          "name": "Metrics: Gemini Latency p50",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/metrics?metric=gemini_latency_p50&interval=1h"
+          }
+        },
+        {
+          "name": "Metrics: OpenAI Cost Ratio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/metrics?metric=openai_cost_ratio&interval=24h"
+          }
+        },
+        {
+          "name": "Logs (errors)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/logs?level=error&limit=100"
+          }
+        },
+        {
+          "name": "Traces (job)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/traces?job_id={{job_id}}"
+          }
+        },
+        {
+          "name": "Analytics (advanced)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/analytics?view=quality_trends"
+          }
+        }
+      ]
+    },
+    {
+      "name": "K. Jobs & Monitoring",
+      "item": [
+        {
+          "name": "Queue Job (explicit)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/jobs/queue",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"ISN-ASR\",\n  \"version\": \"v1.2\",\n  \"workflow\": [\n    \"asr\",\n    \"mt\",\n    \"context\",\n    \"align\",\n    \"qa\"\n  ],\n  \"input_type\": \"audio\",\n  \"input\": {\n    \"url\": \"https://storage.googleapis.com/isn/prod/jobs/{{job_id}}/input.mp4\"\n  },\n  \"source_lang\": \"hi\",\n  \"target_lang\": \"en\",\n  \"options\": {\n    \"timestamps\": true,\n    \"output_format\": \"srt\"\n  },\n  \"metadata\": {\n    \"job_id\": \"{{job_id}}\",\n    \"origin\": \"mysubtitle.in\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Job Status (poll)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/jobs/status?job_id={{job_id}}"
+          }
+        },
+        {
+          "name": "Jobs \u2192 Segments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/jobs/segments?job_id={{job_id}}"
+          }
+        },
+        {
+          "name": "Jobs \u2192 Merge Segments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/jobs/segments/merge",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Jobs \u2192 Cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/jobs/cancel",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Jobs \u2192 Resume",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/jobs/resume",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "L. Training & Review Ops",
+      "item": [
+        {
+          "name": "TrainingOps",
+          "item": [
+            {
+              "name": "Start Training",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/training/start",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"model_id\": \"isn_asr\",\n  \"base_version\": \"v1.2\",\n  \"datasets\": [\n    \"IndicSpeech-Text:2025.09\"\n  ],\n  \"config\": {\n    \"epochs\": 1,\n    \"batch_size\": 64\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Training Status",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{base_url}}/training/status?model_id=isn_asr&run_id=RUN-001"
+              }
+            },
+            {
+              "name": "Evaluate Trained Model",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/training/evaluate",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"run_id\": \"RUN-001\",\n  \"metrics\": [\n    \"WER\",\n    \"Latency\"\n  ],\n  \"testset\": \"QA-Corpus:2025.10\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Deploy Trained Model",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/training/deploy",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"run_id\": \"RUN-001\",\n  \"promote_as\": \"v1.3\",\n  \"canary\": {\n    \"traffic_percent\": 10\n  }\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "ReviewOps (HITL)",
+          "item": [
+            {
+              "name": "Queue Review",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/review/queue",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"job_id\": \"{{job_id}}\",\n  \"priority\": \"high\",\n  \"assignee\": \"reviewer1\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Submit Edits",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{base_url}}/review/submit",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"job_id\": \"{{job_id}}\",\n  \"edits\": [\n    {\n      \"segment\": 42,\n      \"old\": \"Let\u2019s roll!\",\n      \"new\": \"Let\u2019s get started!\"\n    }\n  ],\n  \"notes\": \"Tone fix\",\n  \"approve\": true\n}"
+                }
+              }
+            },
+            {
+              "name": "Diff Changes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{base_url}}/review/diff?job_id={{job_id}}"
+              }
+            },
+            {
+              "name": "Review Analytics",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{base_url}}/review/analytics?tenant_id={{tenant_id}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "M. Providers & Integration",
+      "item": [
+        {
+          "name": "Register Provider \u2014 Google Vertex STT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/providers/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": \"google_vertex_stt\",\n  \"type\": \"speech_to_text\",\n  \"endpoint\": \"https://speech.googleapis.com/v1p1beta1/speech:longrunningrecognize\",\n  \"auth_mode\": \"service_account\",\n  \"status\": \"active\",\n  \"metadata\": {\n    \"region\": \"asia-south1\",\n    \"supports_batch\": true,\n    \"supports_stream\": true\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Provider \u2014 OpenAI Whisper",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/providers/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": \"openai_whisper\",\n  \"type\": \"speech_to_text\",\n  \"endpoint\": \"https://api.openai.com/v1/audio/transcriptions\",\n  \"auth_mode\": \"bearer\",\n  \"status\": \"active\",\n  \"metadata\": {\n    \"model\": \"whisper-large-v3\",\n    \"max_file_duration_min\": 120,\n    \"supports_batch\": false\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Provider \u2014 Gemini Multimodal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/providers/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_id\": \"gemini_multimodal\",\n  \"type\": \"llm\",\n  \"endpoint\": \"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent\",\n  \"auth_mode\": \"bearer\",\n  \"status\": \"active\",\n  \"metadata\": {\n    \"supported_modalities\": [\n      \"text\",\n      \"audio\",\n      \"vision\"\n    ],\n    \"use_cases\": [\n      \"contextual_repair\",\n      \"multimodal_verification\"\n    ],\n    \"fallback_to_isn_contextnet\": true\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Providers List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/providers"
+          }
+        },
+        {
+          "name": "Provider Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/providers/status"
+          }
+        },
+        {
+          "name": "Provider Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/providers/metrics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "N. Edge & Deployment",
+      "item": [
+        {
+          "name": "Deploy to Edge",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/edge/deploy",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_id\": \"isn_asr:v1.2\",\n  \"region\": \"ap-south-1\",\n  \"node\": \"edge-mumbai-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Edge Health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/edge/health?region=ap-south-1"
+          }
+        },
+        {
+          "name": "Edge Cache",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/edge/cache",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"purge\",\n  \"media_hash\": \"sha256:ABC...\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Autoscale Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/edge/autoscale/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "O. Utility & Errors",
+      "item": [
+        {
+          "name": "Errors: List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/errors/list"
+          }
+        },
+        {
+          "name": "Errors: Diagnose",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/errors/diagnose",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "System Trace",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/system/trace?job_id={{job_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "P. Webhooks",
+      "item": [
+        {
+          "name": "Webhook Test \u2014 Job Completed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/webhooks/test/job_completed",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\",\n  \"status\": \"completed\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Secret Rotate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/webhooks/secret/rotate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenant_id\": \"{{tenant_id}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Q. Registry & Lineage",
+      "item": [
+        {
+          "name": "Models Registry (list)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/mdms/models"
+          }
+        },
+        {
+          "name": "Models Register (example VoiceNet)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/mdms/models/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_id\": \"ISN-VoiceNet\",\n  \"version\": \"v1.0\",\n  \"endpoint\": \"{{base_url}}/voice/synthesize\",\n  \"type\": \"speech_synthesis\",\n  \"supported_langs\": [\n    \"hi\",\n    \"en\",\n    \"ta\",\n    \"bn\",\n    \"mr\"\n  ],\n  \"training_dataset\": \"VoiceLing:2025.10\",\n  \"status\": \"active\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Model Describe",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/mdms/models/describe?model_id=ISN-ASR&version=v1.2"
+          }
+        },
+        {
+          "name": "Model Lineage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/mdms/models/lineage?model_id=ISN-ASR"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hybrid Orchestration",
+      "item": [
+        {
+          "name": "Run Hybrid Workflow (STT + Gemini)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/hybrid/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input\": {\n    \"url\": \"https://storage.googleapis.com/isn/test/input.mp4\"\n  },\n  \"source_lang\": \"hi\",\n  \"target_lang\": \"en\",\n  \"pipeline\": [\n    \"stt\",\n    \"gemini_translate\",\n    \"srt_format\"\n  ],\n  \"options\": {\n    \"timestamps\": true,\n    \"tone\": \"cinematic\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Merge STT + Gemini Output",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/hybrid/merge",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stt_output\": \"https://cdn.isn/jobs/{{job_id}}/stt.json\",\n  \"gemini_output\": \"https://cdn.isn/jobs/{{job_id}}/gemini.json\",\n  \"metadata\": {\n    \"job_id\": \"{{job_id}}\"\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gemini Contextual APIs",
+      "item": [
+        {
+          "name": "Gemini Translate + Subtitle Format",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/gemini/translate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"\\u092f\\u0939 \\u090f\\u0915 \\u0938\\u091a\\u094d\\u091a\\u0940 \\u0915\\u0939\\u093e\\u0928\\u0940 \\u0939\\u0948\\u0964\",\n  \"source_lang\": \"hi\",\n  \"target_lang\": \"en\",\n  \"prompt\": \"Translate for film subtitles; preserve emotion; max 42 chars per line; output .srt format.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Gemini Contextual Rewriter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/gemini/contextualize",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"srt_url\": \"https://cdn.isn/jobs/{{job_id}}/output.srt\",\n  \"style\": \"cinematic\",\n  \"tone\": \"emotional\",\n  \"locale\": \"en-IN\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Training & Feedback (Hybrid Extension)",
+      "item": [
+        {
+          "name": "Start Hybrid Training (Vertex AI)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/training/hybrid/start",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_id\": \"isn_hybrid_v1\",\n  \"datasets\": [\n    \"IndicSpeech:2025.09\",\n    \"CineLing:2025.10\"\n  ],\n  \"config\": {\n    \"epochs\": 2,\n    \"batch_size\": 64\n  },\n  \"use_vertex_ai\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Apply Reviewer Feedback to Dataset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/training/feedback/apply",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job_id\": \"{{job_id}}\",\n  \"edits\": [\n    {\n      \"segment\": 15,\n      \"old\": \"Let's roll!\",\n      \"new\": \"Let's begin!\"\n    }\n  ],\n  \"update_dataset\": \"IndicSpeech:2025.09\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Observability & Metrics (Hybrid)",
+      "item": [
+        {
+          "name": "Hybrid Accuracy Delta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/observability/metrics?metric=hybrid_accuracy_delta&interval=24h"
+          }
+        },
+        {
+          "name": "Live SQI Stream",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/sqi/stream?job_id={{job_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "POC Validation",
+      "item": [
+        {
+          "name": "Test Gemini Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/poc/test-gemini",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"video_url\": \"https://storage.googleapis.com/isn/test/sample.mp4\",\n  \"target_lang\": \"en\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Test STT Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/poc/test-stt",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"audio_url\": \"https://storage.googleapis.com/isn/test/sample.wav\",\n  \"lang\": \"hi-IN\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Compare Outputs (Gemini vs STT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/poc/compare",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"providers\": [\n    \"google_vertex_stt\",\n    \"gemini_multimodal\"\n  ],\n  \"metrics\": [\n    \"WER\",\n    \"Latency\",\n    \"SQI\"\n  ]\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
