@@ -1,0 +1,122 @@
+{
+  "info": {
+    "name": "ISN Client API (v1) - Postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_id\": \"CLIENT_ID\",\n  \"client_secret\": \"CLIENT_SECRET\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/token",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "token"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Models Run",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"workflow\": [\n    \"asr\",\n    \"mt\",\n    \"context\",\n    \"align\",\n    \"qa\"\n  ],\n  \"input\": {\n    \"url\": \"https://storage.example.com/input.mp4\"\n  },\n  \"source_lang\": \"hi\",\n  \"target_lang\": \"en\",\n  \"media_duration_s\": 120,\n  \"latency_class\": \"auto\",\n  \"idempotency_key\": \"example-123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/models/run",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "models",
+            "run"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Jobs Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/jobs/status?job_id={{job_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "jobs",
+            "status"
+          ],
+          "query": [
+            {
+              "key": "job_id",
+              "value": "{{job_id}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Feedback Submit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"job_id\": \"JOB-123\",\n  \"rating\": 4.5,\n  \"comment\": \"Good\",\n  \"emotion_match\": 0.9\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/feedback/submit",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "feedback",
+            "submit"
+          ]
+        }
+      }
+    }
+  ]
+}
