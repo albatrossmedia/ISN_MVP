@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   BarChart3,
+  Play,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,6 +21,7 @@ interface SidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'New Workflow', href: '/dashboard/workflows/new', icon: Play },
   { name: 'Models', href: '/dashboard/models', icon: Box },
   { name: 'Model Performance', href: '/dashboard/model-performance', icon: BarChart3 },
   { name: 'Datasets', href: '/dashboard/datasets', icon: Database },

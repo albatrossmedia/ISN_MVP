@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { Landing } from './pages/Landing';
@@ -14,6 +15,8 @@ import { Users } from './pages/Users';
 import { SystemHealth } from './pages/SystemHealth';
 import { ModelPerformance } from './pages/ModelPerformance';
 import { DatasetPerformance } from './pages/DatasetPerformance';
+import { WorkflowRunner } from './pages/WorkflowRunner';
+import { JobMonitor } from './pages/JobMonitor';
 
 function App() {
   return (
@@ -29,6 +32,8 @@ function App() {
             <Route path="models" element={<Models />} />
             <Route path="datasets" element={<Datasets />} />
             <Route path="jobs" element={<Jobs />} />
+            <Route path="workflows/new" element={<WorkflowRunner />} />
+            <Route path="workflows/:jobId" element={<JobMonitor />} />
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="users" element={<Users />} />
             <Route path="system-health" element={<SystemHealth />} />
@@ -37,6 +42,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+      <Toaster position="top-right" />
     </ThemeProvider>
   );
 }
