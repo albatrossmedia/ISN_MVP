@@ -1,0 +1,79 @@
+{
+  "id": "ISN-Hybrid-Env-v1",
+  "name": "ISN Hybrid Environment (v1)",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "https://api.indicsubtitlenet.com/v1",
+      "enabled": true
+    },
+    {
+      "key": "token",
+      "value": "YOUR_ACCESS_TOKEN",
+      "enabled": true
+    },
+    {
+      "key": "tenant_id",
+      "value": "TENANT-001",
+      "enabled": true
+    },
+    {
+      "key": "project_id",
+      "value": "PROJECT-ISN-HYBRID",
+      "enabled": true
+    },
+    {
+      "key": "job_id",
+      "value": "JOB-TEST-001",
+      "enabled": true
+    },
+    {
+      "key": "provider_gemini_key",
+      "value": "gai-REDACTED",
+      "enabled": true
+    },
+    {
+      "key": "region",
+      "value": "asia-south1",
+      "enabled": true
+    },
+    {
+      "key": "vertex_project",
+      "value": "isn-gemini-poc",
+      "enabled": true
+    },
+    {
+      "key": "storage_bucket",
+      "value": "gs://isn-media",
+      "enabled": true
+    },
+    {
+      "key": "grafana_url",
+      "value": "https://grafana.indicsubtitlenet.com",
+      "enabled": true
+    },
+    {
+      "key": "sqi_dashboard",
+      "value": "https://grafana.indicsubtitlenet.com/d/isn-sqi",
+      "enabled": true
+    },
+    {
+      "key": "gemini_model",
+      "value": "gemini-1.5-pro",
+      "enabled": true
+    },
+    {
+      "key": "stt_model",
+      "value": "chirp-batch-v2",
+      "enabled": true
+    },
+    {
+      "key": "environment",
+      "value": "production",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2025-10-29T12:30:00Z",
+  "_postman_exported_using": "Postman v11"
+}
