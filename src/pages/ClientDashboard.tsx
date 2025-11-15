@@ -16,10 +16,16 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useOnboarding } from '../contexts/OnboardingContext';
+import { WelcomeWizard } from '../components/onboarding/WelcomeWizard';
+import { QuickStartChecklist } from '../components/onboarding/QuickStartChecklist';
+import { FeatureAnnouncement } from '../components/onboarding/FeatureAnnouncement';
 import toast from 'react-hot-toast';
 
 export const ClientDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { onboarding, startOnboarding } = useOnboarding();
+  const [showWelcomeWizard, setShowWelcomeWizard] = useState(false);
   const [stats, setStats] = useState({
     apiKeysCount: 0,
     workflowsRun: 0,
@@ -33,6 +39,12 @@ export const ClientDashboard: React.FC = () => {
   useEffect(() => {
     fetchDashboardData();
   }, [user]);
+
+  useEffect(() => {
+    if (onboarding && !onboarding.is_completed && !onboarding.skipped) {
+      setShowWelcomeWizard(true);
+    }
+  }, [onboarding]);
 
   const fetchDashboardData = async () => {
     try {
@@ -92,6 +104,11 @@ export const ClientDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <WelcomeWizard
+        isOpen={showWelcomeWizard}
+        onClose={() => setShowWelcomeWizard(false)}
+      />
+
       <div>
         <h1 className="text-4xl font-bold text-white mb-2">
           Welcome back, {user?.email?.split('@')[0]}!
@@ -100,6 +117,10 @@ export const ClientDashboard: React.FC = () => {
           Here's an overview of your subtitle generation activity
         </p>
       </div>
+
+      <FeatureAnnouncement />
+
+      <QuickStartChecklist />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-transparent border-blue-400/20">

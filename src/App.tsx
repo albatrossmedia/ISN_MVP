@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { OnboardingProvider } from './contexts/OnboardingContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { ClientLayout } from './components/layout/ClientLayout';
 import { Landing } from './pages/Landing';
@@ -37,7 +38,8 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
+        <OnboardingProvider>
+          <Router>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/models" element={<PublicModels />} />
@@ -76,8 +78,9 @@ function App() {
             <Route path="billing" element={<Dashboard />} />
           </Route>
         </Routes>
-        </Router>
-        <Toaster position="top-right" />
+          </Router>
+          <Toaster position="top-right" />
+        </OnboardingProvider>
       </AuthProvider>
     </ThemeProvider>
   );
