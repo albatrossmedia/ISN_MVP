@@ -17,6 +17,12 @@ import { ModelPerformance } from './pages/ModelPerformance';
 import { DatasetPerformance } from './pages/DatasetPerformance';
 import { WorkflowRunner } from './pages/WorkflowRunner';
 import { JobMonitor } from './pages/JobMonitor';
+import { FAQ } from './pages/FAQ';
+import { PublicModels } from './pages/PublicModels';
+import { PublicDatasets } from './pages/PublicDatasets';
+import { About } from './pages/About';
+import { Pricing } from './pages/Pricing';
+import { Contact } from './pages/Contact';
 
 function App() {
   return (
@@ -24,6 +30,12 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/models" element={<PublicModels />} />
+          <Route path="/datasets" element={<PublicDatasets />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

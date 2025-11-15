@@ -28,20 +28,51 @@ export function Landing() {
         </div>
 
         <nav className="border-b border-white/5 backdrop-blur-xl bg-black/30">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <span className="text-xl font-bold">IndicSubtitleNet</span>
-            </div>
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <span className="text-xl font-bold">IndicSubtitleNet</span>
+              </Link>
 
-            <Link
-              to="/dashboard"
-              className="px-6 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 font-medium backdrop-blur-sm"
-            >
-              Access Console
-            </Link>
+              <div className="hidden md:flex items-center gap-6">
+                <Link to="/models" className="text-gray-300 hover:text-white transition-colors">
+                  Models
+                </Link>
+                <Link to="/datasets" className="text-gray-300 hover:text-white transition-colors">
+                  Datasets
+                </Link>
+                <Link to="/pricing" className="text-gray-300 hover:text-white transition-colors">
+                  Pricing
+                </Link>
+                <Link to="/faq" className="text-gray-300 hover:text-white transition-colors">
+                  FAQ
+                </Link>
+                <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
+                  About
+                </Link>
+                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
+                  Contact
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-lg text-gray-300 hover:text-white transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-medium"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
           </div>
         </nav>
 
