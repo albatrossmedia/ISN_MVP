@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { MainLayout } from './components/layout/MainLayout';
+import { ClientLayout } from './components/layout/ClientLayout';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { SignUp } from './pages/SignUp';
@@ -26,11 +28,16 @@ import { Contact } from './pages/Contact';
 import { News } from './pages/News';
 import { NewsPost } from './pages/NewsPost';
 import { BlogManagement } from './pages/BlogManagement';
+import { Organizations } from './pages/Organizations';
+import { ApiKeyManagement } from './pages/ApiKeyManagement';
+import { ClientDashboard } from './pages/ClientDashboard';
+import { DemoWorkflows } from './pages/DemoWorkflows';
 
 function App() {
   return (
     <ThemeProvider>
-      <Router>
+      <AuthProvider>
+        <Router>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/models" element={<PublicModels />} />
@@ -57,10 +64,21 @@ function App() {
             <Route path="model-performance" element={<ModelPerformance />} />
             <Route path="dataset-performance" element={<DatasetPerformance />} />
             <Route path="blog" element={<BlogManagement />} />
+            <Route path="organizations" element={<Organizations />} />
+            <Route path="api-keys" element={<ApiKeyManagement />} />
+          </Route>
+          <Route path="/client" element={<ClientLayout />}>
+            <Route index element={<ClientDashboard />} />
+            <Route path="workflows/new" element={<WorkflowRunner />} />
+            <Route path="demo" element={<DemoWorkflows />} />
+            <Route path="history" element={<Jobs />} />
+            <Route path="api-keys" element={<ApiKeyManagement />} />
+            <Route path="billing" element={<Dashboard />} />
           </Route>
         </Routes>
-      </Router>
-      <Toaster position="top-right" />
+        </Router>
+        <Toaster position="top-right" />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

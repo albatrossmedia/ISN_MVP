@@ -2,48 +2,31 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Box,
-  Database,
-  Zap,
-  FileText,
-  Users,
-  Activity,
+  Play,
+  BookOpen,
+  Key,
+  History,
+  CreditCard,
   Menu,
   X,
-  BarChart3,
-  Play,
-  Building2,
-  Key,
+  Sparkles,
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
 
-interface SidebarProps {
+interface ClientSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const adminNavigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'New Workflow', href: '/dashboard/workflows/new', icon: Play },
-  { name: 'Models', href: '/dashboard/models', icon: Box },
-  { name: 'Model Performance', href: '/dashboard/model-performance', icon: BarChart3 },
-  { name: 'Datasets', href: '/dashboard/datasets', icon: Database },
-  { name: 'Dataset Performance', href: '/dashboard/dataset-performance', icon: BarChart3 },
-  { name: 'Jobs', href: '/dashboard/jobs', icon: Zap },
-  { name: 'Organizations', href: '/dashboard/organizations', icon: Building2, superAdminOnly: true },
-  { name: 'API Keys', href: '/dashboard/api-keys', icon: Key },
-  { name: 'Audit Logs', href: '/dashboard/audit-logs', icon: FileText },
-  { name: 'Users & Access', href: '/dashboard/users', icon: Users },
-  { name: 'System Health', href: '/dashboard/system-health', icon: Activity },
+const navigation = [
+  { name: 'Dashboard', href: '/client', icon: LayoutDashboard },
+  { name: 'Run Workflow', href: '/client/workflows/new', icon: Play },
+  { name: 'Demo Workflows', href: '/client/demo', icon: BookOpen },
+  { name: 'Workflow History', href: '/client/history', icon: History },
+  { name: 'API Keys', href: '/client/api-keys', icon: Key },
+  { name: 'Usage & Billing', href: '/client/billing', icon: CreditCard },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { isSuperAdmin } = useAuth();
-
-  const navigation = adminNavigation.filter(
-    item => !item.superAdminOnly || isSuperAdmin
-  );
-
+export const ClientSidebar: React.FC<ClientSidebarProps> = ({ isOpen, onClose }) => {
   return (
     <>
       <div
@@ -65,10 +48,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                <Box className="w-5 h-5 text-white" />
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-white">
-                IndicSubtitle
+                Client Portal
               </span>
             </div>
             <button
@@ -84,6 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <NavLink
                 key={item.name}
                 to={item.href}
+                end={item.href === '/client'}
                 onClick={() => onClose()}
                 className={({ isActive }) =>
                   `flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300 ${
@@ -104,8 +88,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </nav>
 
           <div className="p-4 border-t border-white/10">
-            <div className="text-xs text-gray-500 text-center">
-              MDMS v1.0.0
+            <div className="p-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-lg border border-blue-400/20">
+              <p className="text-xs font-semibold text-blue-400 mb-1">Need Help?</p>
+              <p className="text-xs text-gray-300 mb-3">
+                Check our documentation or contact support
+              </p>
+              <a
+                href="/docs"
+                className="text-xs text-blue-400 hover:text-blue-300 font-medium"
+              >
+                View Documentation →
+              </a>
             </div>
           </div>
         </div>
