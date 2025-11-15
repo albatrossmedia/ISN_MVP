@@ -29,11 +29,11 @@ export const PublicLayout = ({ children }: PublicLayoutProps) => {
                 <Link to="/datasets" className="text-gray-300 hover:text-white transition-colors">
                   Datasets
                 </Link>
+                <Link to="/news" className="text-gray-300 hover:text-white transition-colors">
+                  News
+                </Link>
                 <Link to="/pricing" className="text-gray-300 hover:text-white transition-colors">
                   Pricing
-                </Link>
-                <Link to="/faq" className="text-gray-300 hover:text-white transition-colors">
-                  FAQ
                 </Link>
                 <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
                   About

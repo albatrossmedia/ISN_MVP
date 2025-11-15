@@ -23,6 +23,9 @@ import { PublicDatasets } from './pages/PublicDatasets';
 import { About } from './pages/About';
 import { Pricing } from './pages/Pricing';
 import { Contact } from './pages/Contact';
+import { News } from './pages/News';
+import { NewsPost } from './pages/NewsPost';
+import { BlogManagement } from './pages/BlogManagement';
 
 function App() {
   return (
@@ -32,6 +35,8 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/models" element={<PublicModels />} />
           <Route path="/datasets" element={<PublicDatasets />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:slug" element={<NewsPost />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/about" element={<About />} />
@@ -51,6 +56,7 @@ function App() {
             <Route path="system-health" element={<SystemHealth />} />
             <Route path="model-performance" element={<ModelPerformance />} />
             <Route path="dataset-performance" element={<DatasetPerformance />} />
+            <Route path="blog" element={<BlogManagement />} />
           </Route>
         </Routes>
       </Router>
