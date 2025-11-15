@@ -1,0 +1,10 @@
+{
+  "name": "isn-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd ISN_MVP/backend && npm run dev",
+    "dev:frontend": "cd ISN_MVP/frontend && npm run dev",
+    "build": "cd ISN_MVP/frontend && npm run build"
+  }
+}
